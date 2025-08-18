@@ -4,6 +4,7 @@ import { getChatStream } from './services/geminiService';
 import Header from './components/Header';
 import ChatHistory from './components/ChatHistory';
 import ChatInput from './components/ChatInput';
+import LiveBackground from './components/LiveBackground';
 
 const App: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([
@@ -86,19 +87,20 @@ const App: React.FC = () => {
   }, [messages]);
 
   return (
-    <div className="flex flex-col h-screen bg-black text-white antialiased">
-      <Header />
-      <div className="flex-1 overflow-hidden">
-        <ChatHistory messages={messages} isLoading={isLoading} />
-      </div>
-      <div className="w-full max-w-3xl mx-auto p-4 md:pb-8">
-        <ChatInput onSendMessage={handleSendMessage} isLoading={isLoading} />
-        <p className="text-center text-xs text-gray-500 mt-4">
-          Monochrome AI Chat. Powered by OpenRouter. Generated content may not be accurate.
-        </p>
+    <div className="relative h-screen text-white antialiased">
+      <LiveBackground />
+      <div className="relative z-10 flex flex-col h-full">
+        <Header />
+        <div className="flex-1 overflow-hidden">
+          <ChatHistory messages={messages} isLoading={isLoading} />
+        </div>
+        <div className="w-full max-w-3xl mx-auto p-4 md:pb-8">
+          <ChatInput onSendMessage={handleSendMessage} isLoading={isLoading} />
+          <p className="text-center text-xs text-gray-500 mt-4">
+            Caarg. Powered by OpenRouter. Generated content may not be accurate.
+          </p>
+        </div>
       </div>
     </div>
   );
 };
-
-export default App;
