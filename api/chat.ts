@@ -27,8 +27,8 @@ export default async function handler(req: Request) {
         "Authorization": `Bearer ${API_KEY}`,
         "Content-Type": "application/json",
         // Vercel's deployment URL can be used as a referer
-        "HTTP-Referer": req.headers.get('host') || "monochrome-ai-chat.app",
-        "X-Title": "Monochrome AI Chat",
+        "HTTP-Referer": req.headers.get('host') || "caarg.app",
+        "X-Title": "CAARG AI",
       },
       body: JSON.stringify({
         "model": "z-ai/glm-4.5-air:free",
