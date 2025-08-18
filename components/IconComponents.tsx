@@ -1,4 +1,5 @@
 import React from 'https://esm.sh/react@^19.1.1';
+import { customModelIconBase64 } from '../config';
 
 type IconProps = {
   className?: string;
@@ -21,20 +22,12 @@ export const UserIcon: React.FC<IconProps> = ({ className }) => (
 );
 
 export const ModelIcon: React.FC<IconProps> = ({ className }) => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    className={`${className} blinking-diamond`}
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <path d="M6 3h12l4 6-10 12L2 9l4-6Z"/>
-    <path d="M12 3v18"/>
-    <path d="M2 9h20"/>
-  </svg>
+  <img
+    src={customModelIconBase64}
+    alt="AI Model Icon"
+    // The parent container in ChatMessage provides the circular shape
+    className={`${className} rounded-full object-cover`}
+  />
 );
 
 
