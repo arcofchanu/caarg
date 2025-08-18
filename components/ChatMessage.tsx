@@ -12,7 +12,7 @@ const TypingCursor: React.FC = () => (
   <span className="animate-pulse inline-block w-2 h-4 bg-gray-400 ml-1" />
 );
 
-// 🔧 Clean markdown & sanitize weird artifacts
+// 🔧 Advanced cleanMarkdown
 function cleanMarkdown(text: string) {
   if (!text) return '';
   let cleaned = text;
@@ -20,21 +20,30 @@ function cleanMarkdown(text: string) {
   // 1. Remove empty bold/italic markers like **** or ____
   cleaned = cleaned.replace(/(\*\*|\_\_)(\s*)(\*\*|\_\_)/g, '');
 
-  // 2. Remove stray bold/italic markers at start or end
-  cleaned = cleaned.replace(/^(\*\*|\*|\_)+/, '').replace(/(\*\*|\*|\_)+$/, '');
+  // 2. Remove bold/italic markers stuck in the middle of words (e.g., "Pharma**:")
+  cleaned = cleaned.replace(/([a-zA-Z])(\*\*|\*)([a-zA-Z])/g, '$1$3');
 
-  // 3. Normalize & strip combining chars (̶, ̃, etc.)
+  // 3. Remove stray markers at start or end of lines
+  cleaned = cleaned.replace(/^(\*\*|\*|\_)+/gm, '').replace(/(\*\*|\*|\_)+$/gm, '');
+
+  // 4. Normalize unicode & strip combining diacritics (weird strike, void chars)
   cleaned = cleaned.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 
-  // 4. Remove stray symbols ▢ ▲ ⃘ and odd unicode boxes
-  cleaned = cleaned.replace(/[▢▲⃘■□▪▫◆◇◉◎◌●○]/g, '');
+  // 5. Remove stray symbols ▢ ▲ ⃘ ■ ◼️ etc
+  cleaned = cleaned.replace(/[▢▲⃘■□▪▫◆◇◉◎◌●○◼️]/g, '');
 
-  // 5. Fix malformed table separators (keep only valid rows with 2+ pipes)
+  // 6. Remove repeated punctuation noise (",,," or "…")
+  cleaned = cleaned.replace(/[,\.]{3,}/g, '…');
+
+  // 7. Fix broken Markdown headers like "###iche" → "### Niche"
+  cleaned = cleaned.replace(/^###\s*iche/i, '### Niche');
+
+  // 8. Fix malformed tables (drop invalid rows, keep valid only)
   cleaned = cleaned
     .split('\n')
     .filter(line => {
       const pipeCount = (line.match(/\|/g) || []).length;
-      return pipeCount === 0 || pipeCount >= 2; // drop garbage rows
+      return pipeCount === 0 || pipeCount >= 2;
     })
     .join('\n');
 
