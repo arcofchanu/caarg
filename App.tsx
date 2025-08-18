@@ -10,7 +10,7 @@ const App: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'model',
-      content: "SInce you came to CAARG (me), something is cooked !",
+      content: "Hello! I am a monochrome-themed AI. How can I assist you today?",
       timestamp: Date.now(),
     },
   ]);
@@ -31,46 +31,48 @@ const App: React.FC = () => {
 
     try {
       const stream = await getChatStream(currentMessageHistory);
-      
-      if (!stream) {
-        throw new Error("Failed to get stream from API");
-      }
-      
       const reader = stream.getReader();
       const decoder = new TextDecoder();
       let done = false;
+      let incompleteChunk = '';
 
       while (!done) {
         const { value, done: readerDone } = await reader.read();
         done = readerDone;
-        const chunk = decoder.decode(value, { stream: true });
+        const chunk = decoder.decode(value, { stream: !done });
         
-        const lines = chunk.split('\n').filter(line => line.trim().startsWith('data: '));
+        // Prepend any incomplete chunk from the previous read
+        const lines = (incompleteChunk + chunk).split('\n');
+
+        // The last line might be incomplete, so we save it for the next chunk
+        incompleteChunk = lines.pop() || '';
 
         for (const line of lines) {
-            const jsonString = line.substring(6);
-            if (jsonString.trim() === '[DONE]') {
-                done = true;
-                break;
+          if (line.trim().startsWith('data: ')) {
+            const data = line.substring(6).trim();
+            if (data === '[DONE]') {
+              break;
             }
             try {
-                const parsed = JSON.parse(jsonString);
-                const content = parsed.choices?.[0]?.delta?.content;
-                if (content) {
-                    setMessages(prev => {
-                        const newMessages = [...prev];
-                        const lastMessage = newMessages[newMessages.length - 1];
-                        if (lastMessage && lastMessage.role === 'model') {
-                            lastMessage.content += content;
-                        }
-                        return newMessages;
-                    });
-                }
-            } catch (error) {
-                // Ignore parsing errors for empty chunks etc.
+              const parsed = JSON.parse(data);
+              const textChunk = parsed.choices?.[0]?.delta?.content || '';
+              if (textChunk) {
+                setMessages(prev => {
+                    const newMessages = [...prev];
+                    const lastMessage = newMessages[newMessages.length - 1];
+                    if (lastMessage && lastMessage.role === 'model') {
+                        lastMessage.content += textChunk;
+                    }
+                    return newMessages;
+                });
+              }
+            } catch (e) {
+              console.error("Error parsing stream data chunk:", e, "Data:", data);
             }
+          }
         }
       }
+
     } catch (error) {
       console.error("Error sending message:", error);
       setMessages(prev => {
@@ -87,16 +89,19 @@ const App: React.FC = () => {
   }, [messages]);
 
   return (
-    <div className="flex flex-col h-screen bg-black text-white antialiased">
-      <Header />
-      <div className="flex-1 overflow-hidden">
-        <ChatHistory messages={messages} isLoading={isLoading} />
-      </div>
-      <div className="w-full max-w-3xl mx-auto p-4 md:pb-8">
-        <ChatInput onSendMessage={handleSendMessage} isLoading={isLoading} />
-        <p className="text-center text-xs text-gray-500 mt-4">
-          CAARG AI Chat. Powered by OpenRouter. Generated content may not be accurate.
-        </p>
+    <div className="relative h-screen text-white antialiased">
+      <LiveBackground />
+      <div className="relative z-10 flex flex-col h-full">
+        <Header />
+        <div className="flex-1 overflow-hidden">
+          <ChatHistory messages={messages} isLoading={isLoading} />
+        </div>
+        <div className="w-full max-w-3xl mx-auto p-4 md:pb-8">
+          <ChatInput onSendMessage={handleSendMessage} isLoading={isLoading} />
+          <p className="text-center text-xs text-gray-500 mt-4">
+            Caarg. Generated content may not be accurate.
+          </p>
+        </div>
       </div>
     </div>
   );
