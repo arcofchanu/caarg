@@ -12,36 +12,23 @@ const TypingCursor: React.FC = () => (
   <span className="animate-pulse inline-block w-2 h-4 bg-gray-400 ml-1" />
 );
 
-// 🔧 Advanced cleanMarkdown with emoji & symbol removal
+// 🧹 Cleans up messy AI output (extra ****, stray symbols, bad tables, etc.)
 function cleanMarkdown(text: string) {
   if (!text) return '';
+
   let cleaned = text;
 
-  // 1. Remove empty bold/italic markers like **** or ____
+  // 1. Remove useless bold markers like **** or stray **
   cleaned = cleaned.replace(/(\*\*|\_\_)(\s*)(\*\*|\_\_)/g, '');
+  cleaned = cleaned.replace(/^(\*\*|\*|\_)+/, '').replace(/(\*\*|\*|\_)+$/, '');
 
-  // 2. Remove bold/italic markers stuck in the middle of words (e.g., "Pharma**:")
-  cleaned = cleaned.replace(/([a-zA-Z])(\*\*|\*)([a-zA-Z])/g, '$1$3');
-
-  // 3. Remove stray markers at start or end of lines
-  cleaned = cleaned.replace(/^(\*\*|\*|\_)+/gm, '').replace(/(\*\*|\*|\_)+$/gm, '');
-
-  // 4. Normalize unicode & strip combining diacritics (weird strike, void chars)
+  // 2. Normalize & strip weird combining marks (like ̶ ̃ etc.)
   cleaned = cleaned.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 
-  // 5. Remove ALL emojis & pictographs
-  cleaned = cleaned.replace(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu, '');
+  // 3. Remove stray symbols that look broken
+  cleaned = cleaned.replace(/[▢▲⃘■□▪▫◆◇◼️◻️]/g, '');
 
-  // 6. Remove stray box/drawing symbols ▢ ▲ ■ ◼️ etc
-  cleaned = cleaned.replace(/[▢▲⃘■□▪▫◆◇◉◎◌●○◼]/g, '');
-
-  // 7. Remove repeated punctuation noise (",,," or "…")
-  cleaned = cleaned.replace(/[,\.]{3,}/g, '…');
-
-  // 8. Fix broken Markdown headers like "###iche" → "### Niche"
-  cleaned = cleaned.replace(/^###\s*iche/i, '### Niche');
-
-  // 9. Fix malformed tables (drop invalid rows, keep valid only)
+  // 4. Fix malformed table lines (only keep valid ones)
   cleaned = cleaned
     .split('\n')
     .filter(line => {
@@ -49,6 +36,12 @@ function cleanMarkdown(text: string) {
       return pipeCount === 0 || pipeCount >= 2;
     })
     .join('\n');
+
+  // 5. Add spacing after headers if missing
+  cleaned = cleaned.replace(/(#+)([^\s#])/g, '$1 $2');
+
+  // 6. Ensure lists have a space after dash
+  cleaned = cleaned.replace(/-\s?(?=\w)/g, '- ');
 
   return cleaned.trim();
 }
@@ -109,17 +102,6 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
                   li: ({node, ...props}) => <li className="my-1" {...props} />,
                   blockquote: ({node, ...props}) => (
                     <blockquote className="border-l-4 border-gray-700 pl-4 my-2 italic text-gray-400" {...props} />
-                  ),
-                  table: ({node, ...props}) => (
-                    <div className="overflow-x-auto my-3">
-                      <table className="table-auto border-collapse border border-gray-700 w-full text-sm" {...props} />
-                    </div>
-                  ),
-                  th: ({node, ...props}) => (
-                    <th className="border border-gray-700 px-3 py-1 bg-gray-800 font-semibold" {...props} />
-                  ),
-                  td: ({node, ...props}) => (
-                    <td className="border border-gray-700 px-3 py-1" {...props} />
                   ),
                 }}
               >
