@@ -10,7 +10,7 @@ const App: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'model',
-      content: "Hello! I am a monochrome-themed AI. How can I assist you today?",
+      content: "Since youi came to CAARG (me), Something is cooking",
       timestamp: Date.now(),
     },
   ]);
