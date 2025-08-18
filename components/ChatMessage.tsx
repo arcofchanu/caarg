@@ -12,6 +12,11 @@ const TypingCursor: React.FC = () => (
   <span className="animate-pulse inline-block w-2 h-4 bg-gray-400 ml-1" />
 );
 
+// 🔧 helper to clean up weird Unicode combining marks (like ̶ overlays)
+function stripCombining(text: string) {
+  return text.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+}
+
 const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
   const isUser = message.role === 'user';
   const isEmptyModelMessage = message.role === 'model' && message.content === '';
@@ -41,28 +46,37 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
               <ReactMarkdown
                 remarkPlugins={[remarkGfm]}
                 components={{
-                    p: ({node, ...props}) => <p className="mb-2 last:mb-0" {...props} />,
-                    a: ({node, ...props}) => <a className="text-gray-400 hover:text-white underline" target="_blank" rel="noopener noreferrer" {...props} />,
-                    code({ node, inline, className, children, ...props }) {
-                        return !inline ? (
-                            <pre className="bg-black/25 p-3 rounded-md my-2 overflow-x-auto">
-                                <code className={`text-gray-300 ${className || ''}`} {...props}>
-                                    {children}
-                                </code>
-                            </pre>
-                        ) : (
-                            <code className="bg-black/50 text-gray-300 px-1.5 py-0.5 rounded-md" {...props}>
-                                {children}
-                            </code>
-                        );
-                    },
-                    ul: ({node, ...props}) => <ul className="list-disc list-inside my-2" {...props} />,
-                    ol: ({node, ...props}) => <ol className="list-decimal list-inside my-2" {...props} />,
-                    li: ({node, ...props}) => <li className="my-1" {...props} />,
-                    blockquote: ({node, ...props}) => <blockquote className="border-l-4 border-gray-700 pl-4 my-2 italic text-gray-400" {...props} />,
+                  p: ({ node, ...props }) => <p className="mb-2 last:mb-0" {...props} />,
+                  a: ({ node, ...props }) => (
+                    <a
+                      className="text-gray-400 hover:text-white underline"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      {...props}
+                    />
+                  ),
+                  code({ node, inline, className, children, ...props }) {
+                    return !inline ? (
+                      <pre className="bg-black/25 p-3 rounded-md my-2 overflow-x-auto">
+                        <code className={`text-gray-300 ${className || ''}`} {...props}>
+                          {children}
+                        </code>
+                      </pre>
+                    ) : (
+                      <code className="bg-black/50 text-gray-300 px-1.5 py-0.5 rounded-md" {...props}>
+                        {children}
+                      </code>
+                    );
+                  },
+                  ul: ({ node, ...props }) => <ul className="list-disc list-inside my-2" {...props} />,
+                  ol: ({ node, ...props }) => <ol className="list-decimal list-inside my-2" {...props} />,
+                  li: ({ node, ...props }) => <li className="my-1" {...props} />,
+                  blockquote: ({ node, ...props }) => (
+                    <blockquote className="border-l-4 border-gray-700 pl-4 my-2 italic text-gray-400" {...props} />
+                  ),
                 }}
               >
-                  {message.content}
+                {stripCombining(message.content)}
               </ReactMarkdown>
             )}
             {isEmptyModelMessage && <TypingCursor />}
