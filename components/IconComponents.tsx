@@ -9,7 +9,7 @@ export const UserIcon: React.FC<IconProps> = ({ className }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     className={className}
-    viewBox="0 0 24 24"
+    viewBox="0 0 36 36"
     fill="none"
     stroke="currentColor"
     strokeWidth="0.5"
