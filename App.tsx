@@ -95,7 +95,7 @@ const App: React.FC = () => {
       <div className="w-full max-w-3xl mx-auto p-4 md:pb-8">
         <ChatInput onSendMessage={handleSendMessage} isLoading={isLoading} />
         <p className="text-center text-xs text-gray-500 mt-4">
-          Monochrome AI Chat. Powered by OpenRouter. Generated content may not be accurate.
+          CAARG AI Chat. Powered by OpenRouter. Generated content may not be accurate.
         </p>
       </div>
     </div>
