@@ -12,9 +12,21 @@ const TypingCursor: React.FC = () => (
   <span className="animate-pulse inline-block w-2 h-4 bg-gray-400 ml-1" />
 );
 
-// 🔧 helper to clean up weird Unicode combining marks (like ̶ overlays)
-function stripCombining(text: string) {
-  return text.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+// 🔧 Clean helper
+function cleanMarkdown(text: string) {
+  if (!text) return '';
+  let cleaned = text;
+
+  // 1. Remove empty bold/italic markers like **** or ____
+  cleaned = cleaned.replace(/(\*\*|\_\_)(\s*)(\*\*|\_\_)/g, '');
+
+  // 2. Remove stray bold/italic markers at start or end
+  cleaned = cleaned.replace(/^(\*\*|\*|\_)+/, '').replace(/(\*\*|\*|\_)+$/, '');
+
+  // 3. Normalize combining chars (strip overlays, accents, strikethrough artifacts)
+  cleaned = cleaned.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
+  return cleaned;
 }
 
 const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
@@ -76,7 +88,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
                   ),
                 }}
               >
-                {stripCombining(message.content)}
+                {cleanMarkdown(message.content)}
               </ReactMarkdown>
             )}
             {isEmptyModelMessage && <TypingCursor />}
