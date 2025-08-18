@@ -12,7 +12,7 @@ const TypingCursor: React.FC = () => (
   <span className="animate-pulse inline-block w-2 h-4 bg-gray-400 ml-1" />
 );
 
-// 🔧 Clean helper
+// 🔧 Clean markdown & sanitize weird artifacts
 function cleanMarkdown(text: string) {
   if (!text) return '';
   let cleaned = text;
@@ -23,10 +23,22 @@ function cleanMarkdown(text: string) {
   // 2. Remove stray bold/italic markers at start or end
   cleaned = cleaned.replace(/^(\*\*|\*|\_)+/, '').replace(/(\*\*|\*|\_)+$/, '');
 
-  // 3. Normalize combining chars (strip overlays, accents, strikethrough artifacts)
+  // 3. Normalize & strip combining chars (̶, ̃, etc.)
   cleaned = cleaned.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 
-  return cleaned;
+  // 4. Remove stray symbols ▢ ▲ ⃘ and odd unicode boxes
+  cleaned = cleaned.replace(/[▢▲⃘■□▪▫◆◇◉◎◌●○]/g, '');
+
+  // 5. Fix malformed table separators (keep only valid rows with 2+ pipes)
+  cleaned = cleaned
+    .split('\n')
+    .filter(line => {
+      const pipeCount = (line.match(/\|/g) || []).length;
+      return pipeCount === 0 || pipeCount >= 2; // drop garbage rows
+    })
+    .join('\n');
+
+  return cleaned.trim();
 }
 
 const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
@@ -58,8 +70,8 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
               <ReactMarkdown
                 remarkPlugins={[remarkGfm]}
                 components={{
-                  p: ({ node, ...props }) => <p className="mb-2 last:mb-0" {...props} />,
-                  a: ({ node, ...props }) => (
+                  p: ({node, ...props}) => <p className="mb-2 last:mb-0" {...props} />,
+                  a: ({node, ...props}) => (
                     <a
                       className="text-gray-400 hover:text-white underline"
                       target="_blank"
@@ -80,11 +92,22 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
                       </code>
                     );
                   },
-                  ul: ({ node, ...props }) => <ul className="list-disc list-inside my-2" {...props} />,
-                  ol: ({ node, ...props }) => <ol className="list-decimal list-inside my-2" {...props} />,
-                  li: ({ node, ...props }) => <li className="my-1" {...props} />,
-                  blockquote: ({ node, ...props }) => (
+                  ul: ({node, ...props}) => <ul className="list-disc list-inside my-2" {...props} />,
+                  ol: ({node, ...props}) => <ol className="list-decimal list-inside my-2" {...props} />,
+                  li: ({node, ...props}) => <li className="my-1" {...props} />,
+                  blockquote: ({node, ...props}) => (
                     <blockquote className="border-l-4 border-gray-700 pl-4 my-2 italic text-gray-400" {...props} />
+                  ),
+                  table: ({node, ...props}) => (
+                    <div className="overflow-x-auto my-3">
+                      <table className="table-auto border-collapse border border-gray-700 w-full text-sm" {...props} />
+                    </div>
+                  ),
+                  th: ({node, ...props}) => (
+                    <th className="border border-gray-700 px-3 py-1 bg-gray-800 font-semibold" {...props} />
+                  ),
+                  td: ({node, ...props}) => (
+                    <td className="border border-gray-700 px-3 py-1" {...props} />
                   ),
                 }}
               >
