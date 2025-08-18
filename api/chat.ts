@@ -31,7 +31,7 @@ export default async function handler(req: Request) {
         "X-Title": "Monochrome AI Chat",
       },
       body: JSON.stringify({
-        "model": "moonshotai/kimi-vl-a3b-thinking:free",
+        "model": "z-ai/glm-4.5-air:free",
         "messages": [systemPrompt, ...messagesForApi],
         "stream": true
       })
