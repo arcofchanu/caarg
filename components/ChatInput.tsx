@@ -40,7 +40,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading }) => {
             handleSubmit(e);
           }
         }}
-        placeholder="Message Monochrome AI..."
+        placeholder="CAARG is reading"
         rows={1}
         className="w-full bg-transparent p-4 pr-16 text-gray-300 placeholder-gray-500 resize-none focus:outline-none max-h-40"
         disabled={isLoading}
