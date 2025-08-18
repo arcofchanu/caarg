@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'https://esm.sh/react@^19.1.1';
 import { type Message } from './types';
-import { getChatStream } from './services/geminiService';
+import { getChatStream } from './services/chatService';
 import Header from './components/Header';
 import ChatHistory from './components/ChatHistory';
 import ChatInput from './components/ChatInput';
