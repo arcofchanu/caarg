@@ -13,18 +13,16 @@
       body {
         font-family: 'Metamorphous', serif;
       }
-      @keyframes blink-glow {
+      @keyframes red-glow {
         0%, 100% {
-          opacity: 0.6;
-          filter: drop-shadow(0 0 1px currentColor);
+          box-shadow: 0 0 6px rgba(255, 0, 0, 0.4), 0 0 10px rgba(255, 0, 0, 0.3);
         }
         50% {
-          opacity: 1;
-          filter: drop-shadow(0 0 3px currentColor);
+          box-shadow: 0 0 16px rgba(255, 0, 0, 0.7), 0 0 24px rgba(255, 0, 0, 0.5);
         }
       }
-      .blinking-diamond {
-        animation: blink-glow 2.5s infinite ease-in-out;
+      .glowing-red-border {
+        animation: red-glow 2.5s infinite ease-in-out;
       }
     </style>
   <script type="importmap">
