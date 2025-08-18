@@ -12,7 +12,7 @@ const TypingCursor: React.FC = () => (
   <span className="animate-pulse inline-block w-2 h-4 bg-gray-400 ml-1" />
 );
 
-// 🔧 Advanced cleanMarkdown
+// 🔧 Advanced cleanMarkdown with emoji & symbol removal
 function cleanMarkdown(text: string) {
   if (!text) return '';
   let cleaned = text;
@@ -29,16 +29,19 @@ function cleanMarkdown(text: string) {
   // 4. Normalize unicode & strip combining diacritics (weird strike, void chars)
   cleaned = cleaned.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 
-  // 5. Remove stray symbols ▢ ▲ ⃘ ■ ◼️ etc
-  cleaned = cleaned.replace(/[▢▲⃘■□▪▫◆◇◉◎◌●○◼️]/g, '');
+  // 5. Remove ALL emojis & pictographs
+  cleaned = cleaned.replace(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu, '');
 
-  // 6. Remove repeated punctuation noise (",,," or "…")
+  // 6. Remove stray box/drawing symbols ▢ ▲ ■ ◼️ etc
+  cleaned = cleaned.replace(/[▢▲⃘■□▪▫◆◇◉◎◌●○◼]/g, '');
+
+  // 7. Remove repeated punctuation noise (",,," or "…")
   cleaned = cleaned.replace(/[,\.]{3,}/g, '…');
 
-  // 7. Fix broken Markdown headers like "###iche" → "### Niche"
+  // 8. Fix broken Markdown headers like "###iche" → "### Niche"
   cleaned = cleaned.replace(/^###\s*iche/i, '### Niche');
 
-  // 8. Fix malformed tables (drop invalid rows, keep valid only)
+  // 9. Fix malformed tables (drop invalid rows, keep valid only)
   cleaned = cleaned
     .split('\n')
     .filter(line => {
