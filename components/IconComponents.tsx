@@ -23,7 +23,7 @@ export const UserIcon: React.FC<IconProps> = ({ className }) => (
 export const ModelIcon: React.FC<IconProps> = ({ className }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
-    className={className}
+    className={`${className} blinking-diamond`}
     viewBox="0 0 24 24"
     fill="none"
     stroke="currentColor"
@@ -31,11 +31,9 @@ export const ModelIcon: React.FC<IconProps> = ({ className }) => (
     strokeLinecap="round"
     strokeLinejoin="round"
   >
-    <path d="m12 14 4-4" />
-    <path d="M12 14 8 10" />
-    <path d="M12 20v-8" />
-    <path d="M9 10H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-3" />
-    <path d="M9 10a2 2 0 0 0-2 2v0a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v0a2 2 0 0 0-2-2" />
+    <path d="M6 3h12l4 6-10 12L2 9l4-6Z"/>
+    <path d="M12 3v18"/>
+    <path d="M2 9h20"/>
   </svg>
 );
 
