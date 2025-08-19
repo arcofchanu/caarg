@@ -1,16 +1,18 @@
 import React, { useState, useCallback } from 'https://esm.sh/react@^19.1.1';
 import { type Message } from './types';
-import { getChatStream } from './services/chatService';
+import { getChatStream } from './services/geminiService';
 import Header from './components/Header';
 import ChatHistory from './components/ChatHistory';
 import ChatInput from './components/ChatInput';
 import LiveBackground from './components/LiveBackground';
+import LandingPage from './components/LandingPage';
 
 const App: React.FC = () => {
+  const [isChatVisible, setIsChatVisible] = useState<boolean>(false);
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'model',
-      content: "Since you came to CAARG (me), something is REALLY DARK !",
+      content: "Since you came to me, Serve me !",
       timestamp: Date.now(),
     },
   ]);
@@ -88,8 +90,16 @@ const App: React.FC = () => {
     }
   }, [messages]);
 
+  const handleEnterChat = () => {
+    setIsChatVisible(true);
+  };
+
+  if (!isChatVisible) {
+    return <LandingPage onEnter={handleEnterChat} />;
+  }
+
   return (
-    <div className="relative h-screen text-white antialiased">
+    <div className="relative h-screen text-white antialiased animate-fade-in">
       <LiveBackground />
       <div className="relative z-10 flex flex-col h-full">
         <Header />
