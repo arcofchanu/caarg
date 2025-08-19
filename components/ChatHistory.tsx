@@ -19,7 +19,7 @@ const ChatHistory: React.FC<ChatHistoryProps> = ({ messages, isLoading }) => {
   }, [messages]);
 
   return (
-    <div className="h-full overflow-y-auto p-4 space-y-6">
+    <div className="h-full overflow-y-auto p-4 space-y-4 md:space-y-6">
       <div className="max-w-3xl mx-auto">
         {messages.map((msg) => (
           <ChatMessage key={msg.timestamp} message={msg} />
