@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'https://esm.sh/react@^19.1.1';
-import { SendIcon } from './IconComponents';
+import { SendIcon, SpinnerIcon } from './IconComponents';
 
 interface ChatInputProps {
   onSendMessage: (message: string) => void;
@@ -50,7 +50,11 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading }) => {
         disabled={isLoading || !input.trim()}
         className="absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-full transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed group"
       >
-        <SendIcon className={`w-6 h-6 ${isLoading || !input.trim() ? 'text-gray-600' : 'text-red-700 group-hover:text-red-500 transition-colors duration-300'}`} />
+        {isLoading ? (
+          <SpinnerIcon className="w-6 h-6 text-red-700 animate-spin" />
+        ) : (
+          <SendIcon className={`w-6 h-6 ${!input.trim() ? 'text-gray-600' : 'text-red-700 group-hover:text-red-500 transition-colors duration-300'}`} />
+        )}
       </button>
     </form>
   );
