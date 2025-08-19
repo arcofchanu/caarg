@@ -4,6 +4,7 @@ import remarkGfm from 'https://esm.sh/remark-gfm@4.0.0';
 import { type Message } from '../types';
 import { UserIcon, ModelIcon } from './IconComponents';
 import LoadingBar from './LoadingBar';
+import ThinkingIndicator from './ThinkingIndicator';
 
 interface ChatMessageProps {
   message: Message;
@@ -35,34 +36,41 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message, isLoading }) => {
             {isUser ? (
               <p className="whitespace-pre-wrap">{message.content}</p>
             ) : (
-              <ReactMarkdown
-                remarkPlugins={[remarkGfm]}
-                components={{
-                    p: ({node, ...props}) => <p className="mb-2 last:mb-0" {...props} />,
-                    a: ({node, ...props}) => <a className="text-orange-400 hover:text-orange-300 underline" target="_blank" rel="noopener noreferrer" {...props} />,
-                    code({ node, inline, className, children, ...props }) {
-                        return !inline ? (
-                            <pre className="bg-red-900/20 p-3 rounded-md my-2 overflow-x-auto">
-                                <code className={`text-orange-200 ${className || ''}`} {...props}>
+              <>
+                {isLoading && message.content === '' && (
+                  <ThinkingIndicator />
+                )}
+                {message.content && (
+                  <ReactMarkdown
+                    remarkPlugins={[remarkGfm]}
+                    components={{
+                        p: ({node, ...props}) => <p className="mb-2 last:mb-0" {...props} />,
+                        a: ({node, ...props}) => <a className="text-orange-400 hover:text-orange-300 underline" target="_blank" rel="noopener noreferrer" {...props} />,
+                        code({ node, inline, className, children, ...props }) {
+                            return !inline ? (
+                                <pre className="bg-red-900/20 p-3 rounded-md my-2 overflow-x-auto">
+                                    <code className={`text-orange-200 ${className || ''}`} {...props}>
+                                        {children}
+                                    </code>
+                                </pre>
+                            ) : (
+                                <code className="bg-red-900/40 text-orange-200 px-1.5 py-0.5 rounded-md" {...props}>
                                     {children}
                                 </code>
-                            </pre>
-                        ) : (
-                            <code className="bg-red-900/40 text-orange-200 px-1.5 py-0.5 rounded-md" {...props}>
-                                {children}
-                            </code>
-                        );
-                    },
-                    ul: ({node, ...props}) => <ul className="list-disc list-inside my-2" {...props} />,
-                    ol: ({node, ...props}) => <ol className="list-decimal list-inside my-2" {...props} />,
-                    li: ({node, ...props}) => <li className="my-1" {...props} />,
-                    blockquote: ({node, ...props}) => <blockquote className="border-l-4 border-red-700/50 pl-4 my-2 italic text-gray-400" {...props} />,
-                }}
-              >
-                  {message.content}
-              </ReactMarkdown>
+                            );
+                        },
+                        ul: ({node, ...props}) => <ul className="list-disc list-inside my-2" {...props} />,
+                        ol: ({node, ...props}) => <ol className="list-decimal list-inside my-2" {...props} />,
+                        li: ({node, ...props}) => <li className="my-1" {...props} />,
+                        blockquote: ({node, ...props}) => <blockquote className="border-l-4 border-red-700/50 pl-4 my-2 italic text-gray-400" {...props} />,
+                    }}
+                  >
+                      {message.content}
+                  </ReactMarkdown>
+                )}
+                {isLoading && message.content !== '' && <LoadingBar />}
+              </>
             )}
-            {isLoading && <LoadingBar />}
           </div>
         </div>
       </div>
