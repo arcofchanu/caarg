@@ -18,8 +18,8 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
 
   const containerClasses = isUser ? 'justify-end' : 'justify-start';
   const bubbleClasses = isUser
-    ? 'bg-gray-200 text-black rounded-br-none'
-    : 'bg-gray-900 text-gray-200 rounded-bl-none';
+    ? 'bg-gray-800/50 text-gray-200 rounded-br-none'
+    : 'bg-black/30 border border-red-500/20 text-gray-200 rounded-bl-none';
 
   const Avatar = isUser ? UserIcon : ModelIcon;
 
@@ -42,16 +42,16 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
                 remarkPlugins={[remarkGfm]}
                 components={{
                     p: ({node, ...props}) => <p className="mb-2 last:mb-0" {...props} />,
-                    a: ({node, ...props}) => <a className="text-gray-400 hover:text-white underline" target="_blank" rel="noopener noreferrer" {...props} />,
+                    a: ({node, ...props}) => <a className="text-orange-400 hover:text-orange-300 underline" target="_blank" rel="noopener noreferrer" {...props} />,
                     code({ node, inline, className, children, ...props }) {
                         return !inline ? (
-                            <pre className="bg-black/25 p-3 rounded-md my-2 overflow-x-auto">
-                                <code className={`text-gray-300 ${className || ''}`} {...props}>
+                            <pre className="bg-red-900/20 p-3 rounded-md my-2 overflow-x-auto">
+                                <code className={`text-orange-200 ${className || ''}`} {...props}>
                                     {children}
                                 </code>
                             </pre>
                         ) : (
-                            <code className="bg-black/50 text-gray-300 px-1.5 py-0.5 rounded-md" {...props}>
+                            <code className="bg-red-900/40 text-orange-200 px-1.5 py-0.5 rounded-md" {...props}>
                                 {children}
                             </code>
                         );
@@ -59,7 +59,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
                     ul: ({node, ...props}) => <ul className="list-disc list-inside my-2" {...props} />,
                     ol: ({node, ...props}) => <ol className="list-decimal list-inside my-2" {...props} />,
                     li: ({node, ...props}) => <li className="my-1" {...props} />,
-                    blockquote: ({node, ...props}) => <blockquote className="border-l-4 border-gray-700 pl-4 my-2 italic text-gray-400" {...props} />,
+                    blockquote: ({node, ...props}) => <blockquote className="border-l-4 border-red-700/50 pl-4 my-2 italic text-gray-400" {...props} />,
                 }}
               >
                   {message.content}
@@ -71,7 +71,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
       </div>
       {isUser && (
         <div className="w-8 h-8 flex-shrink-0 rounded-full bg-gray-300 flex items-center justify-center animate-pop-in">
-          <Avatar className="w-5 h-5 text-gray-800" />
+          <Avatar className="w-5 h-5 text-red-900" />
         </div>
       )}
     </div>
