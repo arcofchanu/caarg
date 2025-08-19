@@ -21,8 +21,12 @@ const ChatHistory: React.FC<ChatHistoryProps> = ({ messages, isLoading }) => {
   return (
     <div className="h-full overflow-y-auto p-4 space-y-4 md:space-y-6">
       <div className="max-w-3xl mx-auto">
-        {messages.map((msg) => (
-          <ChatMessage key={msg.timestamp} message={msg} />
+        {messages.map((msg, index) => (
+          <ChatMessage 
+            key={msg.timestamp} 
+            message={msg} 
+            isLoading={isLoading && msg.role === 'model' && index === messages.length - 1}
+          />
         ))}
         <div ref={endOfMessagesRef} />
       </div>
