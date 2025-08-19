@@ -3,18 +3,15 @@ import ReactMarkdown from 'https://esm.sh/react-markdown@9.0.1';
 import remarkGfm from 'https://esm.sh/remark-gfm@4.0.0';
 import { type Message } from '../types';
 import { UserIcon, ModelIcon } from './IconComponents';
+import LoadingBar from './LoadingBar';
 
 interface ChatMessageProps {
   message: Message;
+  isLoading: boolean;
 }
 
-const TypingCursor: React.FC = () => (
-  <span className="animate-pulse inline-block w-2 h-4 bg-gray-400 ml-1" />
-);
-
-const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
+const ChatMessage: React.FC<ChatMessageProps> = ({ message, isLoading }) => {
   const isUser = message.role === 'user';
-  const isEmptyModelMessage = message.role === 'model' && message.content === '';
 
   const containerClasses = isUser ? 'justify-end' : 'justify-start';
   const bubbleClasses = isUser
@@ -65,7 +62,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
                   {message.content}
               </ReactMarkdown>
             )}
-            {isEmptyModelMessage && <TypingCursor />}
+            {isLoading && <LoadingBar />}
           </div>
         </div>
       </div>
