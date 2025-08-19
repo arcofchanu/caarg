@@ -24,13 +24,13 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
   const Avatar = isUser ? UserIcon : ModelIcon;
 
   return (
-    <div className={`flex items-start gap-4 my-4 animate-fade-in ${containerClasses}`}>
+    <div className={`flex items-start gap-2 md:gap-4 my-4 animate-fade-in ${containerClasses}`}>
       {!isUser && (
         <div className="w-10 h-10 flex-shrink-0 rounded-full flex items-center justify-center animate-pop-in">
           <Avatar className="w-full h-full" />
         </div>
       )}
-      <div className={`flex flex-col max-w-lg ${isUser ? 'items-end' : 'items-start'}`}>
+      <div className={`flex flex-col max-w-[85%] md:max-w-lg ${isUser ? 'items-end' : 'items-start'}`}>
         <div
           className={`px-4 py-3 rounded-xl transition-all duration-300 ${bubbleClasses}`}
         >
