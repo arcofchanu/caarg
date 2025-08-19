@@ -1,6 +1,6 @@
 import React, { useRef, useEffect } from 'https://esm.sh/react@^19.1.1';
 
-const LiveBackground: React.FC = () => {
+const FireBackground: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -12,11 +12,11 @@ const LiveBackground: React.FC = () => {
 
     let animationFrameId: number;
     let particles: Particle[] = [];
-    const interactionRadius = 120;
-
+    
     const mouse = {
       x: -1000,
       y: -1000,
+      radius: 120 // Radius of mouse influence
     };
 
     const handleMouseMove = (event: MouseEvent) => {
@@ -28,71 +28,76 @@ const LiveBackground: React.FC = () => {
       x: number;
       y: number;
       size: number;
-      velocityY: number;
-      baseAlpha: number;
-      targetAlpha: number;
-      currentAlpha: number;
-      color: string;
-      canvasWidth: number;
+      speedY: number;
+      speedX: number;
+      hue: number;
       canvasHeight: number;
+      canvasWidth: number;
+      opacity: number;
+      life: number;
+      maxLife: number;
 
       constructor(canvasWidth: number, canvasHeight: number) {
         this.canvasWidth = canvasWidth;
         this.canvasHeight = canvasHeight;
-        this.x = Math.random() * canvasWidth;
-        this.y = Math.random() * canvasHeight;
-        this.size = Math.random() * 1.5 + 0.5; // Raindrop size
-        this.velocityY = Math.random() * 2.5 + 1; // Downward speed
-        this.baseAlpha = Math.random() * 0.3 + 0.1;
-        this.targetAlpha = this.baseAlpha;
-        this.currentAlpha = this.baseAlpha;
-        this.color = `rgba(200, 200, 200, ${this.currentAlpha})`;
+        this.reset();
+        // Start particles at random points in their lifecycle and position
+        this.y = Math.random() * this.canvasHeight;
+        this.x = Math.random() * this.canvasWidth;
+        this.life = Math.random() * this.maxLife;
       }
       
       reset() {
-        this.y = -10; // Start just above the screen
         this.x = Math.random() * this.canvasWidth;
-        this.size = Math.random() * 1.5 + 0.5;
-        this.velocityY = Math.random() * 2.5 + 1;
-        this.baseAlpha = Math.random() * 0.3 + 0.1;
+        this.y = this.canvasHeight + Math.random() * 50; // Start below the screen
+        this.size = Math.random() * 2.5 + 1; // Small embers
+        this.speedY = Math.random() * 0.5 + 0.2;
+        this.speedX = (Math.random() - 0.5) * 0.3;
+        this.maxLife = Math.random() * 200 + 300;
+        this.life = this.maxLife;
+        this.opacity = 0;
+        // Forge colors: yellow, orange, red
+        this.hue = Math.random() * 30 + 20; // HSL Hue: 20 (orange-yellow) to 50 (orange-red)
       }
 
       update() {
-        // Move particle downwards
-        this.y += this.velocityY;
+        this.y -= this.speedY;
+        this.x += this.speedX;
+        
+        // Mouse interaction
+        let dx = mouse.x - this.x;
+        let dy = mouse.y - this.y;
+        let distance = Math.sqrt(dx * dx + dy * dy);
+        
+        if (distance < mouse.radius) {
+            const force = (mouse.radius - distance) / mouse.radius;
+            // Gently push particles away from the cursor
+            this.x -= dx * force * 0.1;
+            this.y -= dy * force * 0.1;
+        }
 
-        // Reset particle if it goes off the bottom of the screen
-        if (this.y > this.canvasHeight) {
+        // Fade in and out using a sine wave based on life for a gentle pulse
+        this.opacity = Math.sin((1 - this.life / this.maxLife) * Math.PI) * 0.9;
+        
+        this.life--;
+        
+        // Reset particle if it's off-screen or its life ends
+        if (this.y < -this.size || this.life <= 0) {
           this.reset();
         }
-
-        // Mouse interaction effect
-        const dx = this.x - mouse.x;
-        const dy = this.y - mouse.y;
-        const distance = Math.sqrt(dx * dx + dy * dy);
-        
-        this.targetAlpha = this.baseAlpha;
-        if (distance < interactionRadius) {
-          const proximity = 1 - (distance / interactionRadius);
-          this.targetAlpha = this.baseAlpha + proximity * 0.7;
-        }
-        
-        if (this.targetAlpha > 1) this.targetAlpha = 1;
-
-        // Ease alpha to target for smooth transitions
-        this.currentAlpha += (this.targetAlpha - this.currentAlpha) * 0.1;
-        this.color = `rgba(200, 200, 200, ${this.currentAlpha})`;
       }
 
       draw() {
         if (!ctx) return;
-        // Draw a short line to simulate a rain streak
-        ctx.strokeStyle = this.color;
-        ctx.lineWidth = this.size;
+        // Use HSLA for easy color and opacity manipulation
+        ctx.fillStyle = `hsla(${this.hue}, 100%, 60%, ${this.opacity})`;
+        // Add a glow effect for aesthetics
+        ctx.shadowColor = `hsl(${this.hue}, 100%, 50%)`;
+        ctx.shadowBlur = 10;
+
         ctx.beginPath();
-        ctx.moveTo(this.x, this.y);
-        ctx.lineTo(this.x, this.y + this.size * 3); // The length of the streak
-        ctx.stroke();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fill();
       }
     }
 
@@ -101,8 +106,8 @@ const LiveBackground: React.FC = () => {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
       
-      // Adjust particle count based on screen size
-      const numberOfParticles = Math.floor((canvas.width * canvas.height) / 12000);
+      // Responsive particle count for an ambient, non-crowded feel
+      const numberOfParticles = Math.floor((canvas.width * canvas.height) / 10000); 
       
       for (let i = 0; i < numberOfParticles; i++) {
         particles.push(new Particle(canvas.width, canvas.height));
@@ -111,14 +116,18 @@ const LiveBackground: React.FC = () => {
 
     const animate = () => {
       if (!ctx) return;
-      // Use a semi-transparent fill to create a motion blur/trail effect
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      // Clearing the canvas each frame prevents trails, making it look lighter
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      // 'lighter' composite operation makes overlapping particles glow brightly
+      ctx.globalCompositeOperation = 'lighter'; 
 
       particles.forEach(p => {
         p.update();
         p.draw();
       });
+
+      // Reset shadowBlur for the next frame's clear operation
+      ctx.shadowBlur = 0; 
 
       animationFrameId = requestAnimationFrame(animate);
     };
@@ -139,4 +148,4 @@ const LiveBackground: React.FC = () => {
   return <canvas ref={canvasRef} className="absolute top-0 left-0 w-full h-full z-0 bg-black" />;
 };
 
-export default LiveBackground;
+export default FireBackground;
