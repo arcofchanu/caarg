@@ -13,7 +13,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
         <h1 className="text-6xl md:text-8xl font-bold text-gray-200 tracking-wider mb-4 animate-pulse">
           CAARG
         </h1>
-        <p className="text-gray-400 mb-8 text-lg md:text-xl">Ignite the Conversation</p>
+        <p className="text-gray-400 mb-8 text-lg md:text-xl">Hail High to the LORD.</p>
         <button
           onClick={onEnter}
           className="px-8 py-3 bg-transparent border-2 border-gray-600 rounded-lg text-gray-300 font-bold text-xl tracking-widest uppercase transition-all duration-300 hover:border-red-500 hover:text-white hover:bg-red-500/10 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50 glowing-red-border"
